@@ -1,0 +1,11 @@
+{
+  "name": "date-util-lite",
+  "version": "1.0.2",
+  "description": "日期时间格式化工具函数",
+  "main": "dateUtil.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "刘佳欢",
+  "license": "MIT"
+}

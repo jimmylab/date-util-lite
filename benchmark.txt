@@ -1,0 +1,9 @@
+bench: 2.252s
+bench: 2.290s
+bench: 2.268s
+bench: 2.273s
+bench: 2.312s
+bench: 2.255s
+bench: 2.345s
+bench: 2.278s
+ops: 8388608
