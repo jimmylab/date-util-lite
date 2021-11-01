@@ -1,88 +1,15 @@
 'use strict'
 
-/*
-yyyy yy
-mmmm mmm mm m
-dd d
-HH hh H h
-MM M SS S
-W w 几
-T t 上下午
-LLL
-时辰 干支
-*/
-
 // TODO: Enable escape character
+// TODO: 农历计算，参考标准GB/T 33661-2017
+// TODO: 自定义callback
 
-const weekDayChinese = ['日','一', '二', '三', '四', '五', '六'];
-const weekDayEng = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const weekDayEngShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const monthEng = ['December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November'];
-const monthEngShort = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
-const tianGan = ['甲', '乙', '丙', '丁', '午', '己', '庚', '辛', '壬', '癸'];
-const diZhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-
-const Formatter = {
-	yyyy: da => da.getFullYear(),
-	yy:   da => String(da.getFullYear()).slice(2),
-
-	mmmm: da => monthEng[this.da.getMonth()],
-	mmm:  da => monthEngShort[this.da.getMonth()],
-	mm:   da => String(da.getMonth() + 1).padStart(2, '0'),
-	m:    da => da.getMonth() + 1,
-	dd:   da => String(da.getDate()).padStart(2, '0'),
-	d:    da => da.getDate(),
-
-	W:    da => weekDayEng[da.getDay()],
-	w:    da => weekDayEngShort[da.getDay()],
-	'几': da => weekDayChinese[da.getDay()],
-
-	// 24-hours format
-	HH:   da => String(da.getHours()).padStart(2, '0'),
-	H:    da => da.getHours(),
-	// 12-hours format
-	hh:   da => String( (da.getHours()+11) % 12 + 1 ).padStart(2, '0'),
-	h:    da => ( (da.getHours()+11) % 12 + 1 ),
-
-	MM:   da => String(da.getMinutes()).padStart(2, '0'),
-	M:    da => da.getMinutes(),
-	SS:   da => String(da.getSeconds()).padStart(2, '0'),
-	S:    da => da.getSeconds(),
-	LLL:  da => String(this.da.getMilliseconds()).padStart(3, '0'),
-
-	T:    da => (da.getHours() < 12) ? 'AM' : 'PM',
-	t:    da => (da.getHours() < 12) ? 'am' : 'pm',
-	'上下午': da => {
-		let hour = da.getHours()
-		return (
-			(hour <  5) ? '凌晨'
-			: (hour <  8) ? '早上'
-			: (hour < 12) ? '上午'
-			: (hour < 13) ? '中午'
-			: (hour < 19) ? '下午'
-			:               '晚上'
-		)
-	},
-	'时辰': da => diZhi[(da.getHours() + 1) % 12] + '时',
-	'干支': da => {
-		let offYear = (da.getFullYear() - 4) % 60 + 60;
-		return tianGan[offYear % 10] + diZhi[offYear % 12]
-	}
-}
-
-function parseDate(input) {
-	if (input instanceof Date) {
-		return input;
-	}
-	if ('string' === typeof input && input.length) {
-		input = new Date(input);
-		if ( Number.isNaN(input.valueOf()) ) {
-			throw Error('Invalid Date')
-		}
-		return input;
-	}
-	return null;
-}
+const { parseDate } = require('./parseDate.js');
+const {
+	weekDayChinese, weekDayEng, weekDayEngShort,
+	monthEng, monthEngShort,
+	tianGan, diZhi
+} = require('./constants');
 
 class DateExtend {
 	constructor(dateObj) {
@@ -168,7 +95,7 @@ class DateExtend {
 		)
 	}
 	get 时辰() {
-		return diZhi[(this.da.getHours() + 1) % 12] + '时'
+		return diZhi[((1 + this.da.getHours()) >> 1) % 12] + '时'
 	}
 	get 干支() {
 		let offYear = (this.da.getFullYear() - 4) % 60 + 60;
@@ -177,26 +104,6 @@ class DateExtend {
 }
 
 const REPLACE_PATTERN = /(yyyy|yy|mmmm|mmm|mm|m|dd|d|HH|H|hh|h|MM|M|SS|S|几|W|w|LLL|上下午|T|t|时辰|干支)/g;
-// const REPLACE_PATTERN = new RegExp('(' + Object.keys(Formatter).join('|') + ')', 'g');
-
-function formatDate0(date, pattern) {
-	if (!date instanceof Date) throw Error('Not a valid date object');
-	if ('string' !== typeof pattern) throw Error('Pattern must be a string');
-	let dateProxy = new Proxy(date, {
-		get: (da, prop) => {
-			if (prop in Formatter) {
-				return (Formatter[prop])(da);
-			} else {
-				return '';
-			}
-		}
-	})
-
-	return pattern.replace(REPLACE_PATTERN, function(fullMatch, key, offset, origStr) {
-		// console.log(fullMatch, key, offset)
-		return String(dateProxy[key])
-	})
-}
 
 function formatDate(date, pattern) {
 	date = parseDate(date);
@@ -209,6 +116,5 @@ function formatDate(date, pattern) {
 		return date[key] || ''
 	})
 }
-
 
 module.exports = { formatDate, parseDate };

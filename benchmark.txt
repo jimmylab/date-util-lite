@@ -1,9 +1,28 @@
-bench: 2.252s
-bench: 2.290s
-bench: 2.268s
-bench: 2.273s
-bench: 2.312s
-bench: 2.255s
-bench: 2.345s
-bench: 2.278s
+via getter:
+
+bench: 2.568s
+bench: 2.558s
+bench: 2.569s
+bench: 2.564s
+bench: 2.673s
+bench: 2.567s
+bench: 2.577s
+bench: 2.568s
 ops: 8388608
+total: 20.644s
+op/s: 406346
+
+
+via Proxy:
+
+bench: 2.909s
+bench: 2.924s
+bench: 2.989s
+bench: 2.895s
+bench: 2.914s
+bench: 2.931s
+bench: 2.986s
+bench: 2.963s
+ops: 8388608
+total: 26.474s
+op/s: 316862
